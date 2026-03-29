@@ -4,35 +4,40 @@ const KAKAO_KEY = import.meta.env.VITE_KAKAO_JS_KEY
 
 export default function ShareButton({ result }) {
   const [copied, setCopied] = useState(false)
-  const [kakaoReady, setKakaoReady] = useState(false)
 
   useEffect(() => {
     if (KAKAO_KEY && window.Kakao && !window.Kakao.isInitialized()) {
       window.Kakao.init(KAKAO_KEY)
     }
-    setKakaoReady(!!(window.Kakao && window.Kakao.isInitialized()))
   }, [])
 
   const siteUrl = 'https://our00ping.com/'
   const shareText = `오늘 점심 룰렛 결과는... ${result.name}! 🎰\n너도 뭐 먹을지 모르겠으면 → ${siteUrl}`
 
   const handleKakao = () => {
-    if (!kakaoReady) return
-    window.Kakao.Share.sendDefault({
-      objectType: 'feed',
-      content: {
-        title: `오늘 점심은 ${result.name}!`,
-        description: result.copy || '음식 룰렛으로 메뉴 결정!',
-        imageUrl: 'https://our00ping.com/favicon.svg',
-        link: { mobileWebUrl: siteUrl, webUrl: siteUrl },
-      },
-      buttons: [
-        {
-          title: '나도 돌려보기',
+    // 클릭 시점에 초기화 재시도
+    if (KAKAO_KEY && window.Kakao && !window.Kakao.isInitialized()) {
+      window.Kakao.init(KAKAO_KEY)
+    }
+    if (window.Kakao && window.Kakao.isInitialized()) {
+      window.Kakao.Share.sendDefault({
+        objectType: 'feed',
+        content: {
+          title: `오늘 점심은 ${result.name}!`,
+          description: result.copy || '음식 룰렛으로 메뉴 결정!',
+          imageUrl: 'https://our00ping.com/favicon.svg',
           link: { mobileWebUrl: siteUrl, webUrl: siteUrl },
         },
-      ],
-    })
+        buttons: [
+          {
+            title: '나도 돌려보기',
+            link: { mobileWebUrl: siteUrl, webUrl: siteUrl },
+          },
+        ],
+      })
+    } else {
+      alert('카카오톡 공유를 사용할 수 없습니다.')
+    }
   }
 
   const handleShare = async () => {
@@ -55,15 +60,13 @@ export default function ShareButton({ result }) {
 
   return (
     <>
-      {kakaoReady.current && (
-        <button
-          onClick={handleKakao}
-          className="px-5 py-3 bg-[#FEE500] text-[#191919] rounded-xl font-medium
-            hover:brightness-95 transition-all cursor-pointer"
-        >
-          카카오톡 공유
-        </button>
-      )}
+      <button
+        onClick={handleKakao}
+        className="px-5 py-3 bg-[#FEE500] text-[#191919] rounded-xl font-medium
+          hover:brightness-95 transition-all cursor-pointer"
+      >
+        카카오톡 공유
+      </button>
       <button
         onClick={handleShare}
         className="px-5 py-3 bg-blue-500 text-white rounded-xl font-medium
