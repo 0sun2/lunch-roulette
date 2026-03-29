@@ -1,6 +1,8 @@
 import { useState, useCallback } from 'react'
 import menuData from '../data/menu.json'
 
+export { menuData }
+
 const THEME_PRESETS = {
   혼밥: {
     includeCategories: ['분식', '한식', '일식', '패스트푸드', '샐러드', '동남아'],
@@ -157,6 +159,11 @@ export function useRoulette() {
     })
   }, [])
 
+  const setSharedResult = useCallback((menu) => {
+    setResult(menu)
+    setIsSpinning(false)
+  }, [])
+
   const resetAll = useCallback(() => {
     setResult(null)
     setSelectedTheme(null)
@@ -183,6 +190,7 @@ export function useRoulette() {
     removeWheelMenu,
     increaseWheelMenus,
     decreaseWheelMenus,
+    setSharedResult,
     themes: Object.keys(THEME_PRESETS),
   }
 }

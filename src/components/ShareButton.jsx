@@ -12,7 +12,8 @@ export default function ShareButton({ result }) {
   }, [])
 
   const siteUrl = 'https://our00ping.com/'
-  const shareText = `오늘 점심 룰렛 결과는... ${result.name}! 🎰\n너도 뭐 먹을지 모르겠으면 → ${siteUrl}`
+  const resultUrl = `${siteUrl}?r=${result.id}`
+  const shareText = `오늘 점심 룰렛 결과는... ${result.name}! 🎰\n너도 뭐 먹을지 모르겠으면 → ${resultUrl}`
 
   const handleKakao = () => {
     // 클릭 시점에 초기화 재시도
@@ -26,12 +27,12 @@ export default function ShareButton({ result }) {
           title: `오늘 점심은 ${result.name}!`,
           description: result.copy || '음식 룰렛으로 메뉴 결정!',
           imageUrl: 'https://our00ping.com/favicon.svg',
-          link: { mobileWebUrl: siteUrl, webUrl: siteUrl },
+          link: { mobileWebUrl: resultUrl, webUrl: resultUrl },
         },
         buttons: [
           {
-            title: '나도 돌려보기',
-            link: { mobileWebUrl: siteUrl, webUrl: siteUrl },
+            title: '결과 보기',
+            link: { mobileWebUrl: resultUrl, webUrl: resultUrl },
           },
         ],
       })
@@ -46,7 +47,7 @@ export default function ShareButton({ result }) {
         await navigator.share({
           title: '오늘 뭐 먹지 룰렛',
           text: shareText,
-          url: siteUrl,
+          url: resultUrl,
         })
       } catch {
         // 사용자가 공유 취소

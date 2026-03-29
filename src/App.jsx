@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useRoulette } from './hooks/useRoulette'
+import { useRoulette, menuData } from './hooks/useRoulette'
 import Roulette from './components/Roulette'
 import ThemePreset from './components/ThemePreset'
 import ResultCard from './components/ResultCard'
@@ -23,24 +23,36 @@ function App() {
     removeWheelMenu,
     increaseWheelMenus,
     decreaseWheelMenus,
+    setSharedResult,
     themes,
   } = useRoulette()
 
   const [isEditing, setIsEditing] = useState(false)
+  const [isSharedView, setIsSharedView] = useState(false)
 
   const filteredMenus = getFilteredMenus()
 
-  // 최초 로드 및 테마 변경 시 휠 메뉴 세팅
+  // URL 파라미터로 공유 결과 처리
   useEffect(() => {
-    if (!isSpinning && !result) {
+    const params = new URLSearchParams(window.location.search)
+    const sharedId = params.get('r')
+    if (sharedId) {
+      const menu = menuData.find((m) => m.id === sharedId)
+      if (menu) {
+        setSharedResult(menu)
+        setIsSharedView(true)
+        return
+      }
+    }
+    refreshWheelMenus()
+  }, [])
+
+  // 테마 변경 시 휠 메뉴 세팅
+  useEffect(() => {
+    if (!isSpinning && !result && !isSharedView) {
       refreshWheelMenus()
     }
   }, [selectedTheme])
-
-  // 최초 마운트
-  useEffect(() => {
-    refreshWheelMenus()
-  }, [])
 
   const displayMenus = wheelMenus.length > 0 ? wheelMenus : filteredMenus.slice(0, 16)
 
@@ -152,8 +164,14 @@ function App() {
         {result && !isSpinning && (
           <ResultCard
             result={result}
-            onExcludeRespin={excludeAndRespin}
-            onReset={resetAll}
+            onExcludeRespin={isSharedView ? null : excludeAndRespin}
+            onReset={() => {
+              resetAll()
+              setIsSharedView(false)
+              window.history.replaceState(null, '', window.location.pathname)
+              refreshWheelMenus()
+            }}
+            isSharedView={isSharedView}
           />
         )}
 
