@@ -1,23 +1,23 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 
 const KAKAO_KEY = import.meta.env.VITE_KAKAO_JS_KEY
 
 export default function ShareButton({ result }) {
   const [copied, setCopied] = useState(false)
-  const kakaoReady = useRef(false)
+  const [kakaoReady, setKakaoReady] = useState(false)
 
   useEffect(() => {
     if (KAKAO_KEY && window.Kakao && !window.Kakao.isInitialized()) {
       window.Kakao.init(KAKAO_KEY)
     }
-    kakaoReady.current = !!(window.Kakao && window.Kakao.isInitialized())
+    setKakaoReady(!!(window.Kakao && window.Kakao.isInitialized()))
   }, [])
 
   const siteUrl = 'https://our00ping.com/'
   const shareText = `오늘 점심 룰렛 결과는... ${result.name}! 🎰\n너도 뭐 먹을지 모르겠으면 → ${siteUrl}`
 
   const handleKakao = () => {
-    if (!kakaoReady.current) return
+    if (!kakaoReady) return
     window.Kakao.Share.sendDefault({
       objectType: 'feed',
       content: {
